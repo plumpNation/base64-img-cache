@@ -1,12 +1,12 @@
 (function () {
     'use strict';
 
-    var imageUrls = [
-            'https://forums.freebsd.org/download/file.php?avatar=10313_1385339595.jpg',
-            'http://www.earthworksaction.org/images/made/images/avatars/uploads/avatar_12_50_50_s_c1.jpg',
-            'http://gravatar.com/avatar/d12f506a8f9afba443178608fc9e2232?d=mm&s=48&r=G',
-            'http://gravatar.com/avatar/fa89abfe7f076aedbd3387d306770da8?d=wavatar&s=50&r=X',
-            'http://www.avepoint.com/community/wp-content/uploads/avatars/4050/b2f0a7953de1bfc57d05f140bb67c635-bpthumb.jpg'
+    var users = [
+            {id: 'ousaf32o313', image: 'images/1.jpg'},
+            {id: 'sf83jf0fahs', image: 'images/2.jpg'},
+            {id: '83720hfsf7s', image: 'images/3.jpg'},
+            {id: 'hfas87f3h32', image: 'images/4.png'},
+            {id: 'asf373h0138', image: 'images/5.jpg'}
         ],
 
         /**
@@ -20,46 +20,44 @@
         convertImgToBase64 = function (img, outputFormat) {
             var canvas = document.createElement('canvas'),
                 ctx = canvas.getContext('2d'),
-                dataURL,
+                dataURL;
 
-                promise = new Promise(function (resolve, reject) {
-                    outputFormat = outputFormat || 'image/jpg';
+            outputFormat = outputFormat || 'image/jpeg';
 
-                    img.crossOrigin = 'Anonymous';
+            img.crossOrigin = 'Anonymous';
 
-                    canvas.height = img.height;
-                    canvas.width = img.width;
-                    ctx.drawImage(img, 0, 0);
+            canvas.height = img.height;
+            canvas.width = img.width;
+            ctx.drawImage(img, 0, 0);
 
-                    dataURL = canvas.toDataURL(outputFormat);
-                    canvas = null;
+            dataURL = canvas.toDataURL(outputFormat);
+            canvas = null;
 
-                    // just for prettiness :)
-                    resolve(dataUrl);
-                });
-
-            return promise;
+            return dataURL;
         },
 
-        writeDataToStorage = function (key) {
-            return function (data) {
-                debugger;
-                window.localStorage.setItem(key, data);
-            };
+        writeDataToStorage = function (key, data) {
+            window.localStorage.setItem(key, data);
         },
 
         cacheImage = function (img) {
-            convertImgToBase64(img)
-                .then(writeDataToStorage(img.src));
+            var dataURL = convertImgToBase64(img);
+
+            return {
+                forUser: function (user) {
+                    user.image = dataURL;
+                    writeDataToStorage(user.id, JSON.stringify(user));
+                }
+            };
         },
 
-        createImage = function (src, getFromCache) {
+        createImage = function (user, getFromCache) {
             var img,
-                cachedImageSrc = window.localStorage.getItem(src);
+                fromCache,
+                cachedUser = window.localStorage.getItem(user.id);
 
-            if (getFromCache && cachedImageSrc) {
-                console.log('boom')
-                src = cachedImageSrc;
+            if (getFromCache && cachedUser) {
+                fromCache = JSON.parse(cachedUser).image;
 
             } else if (getFromCache) {
                 console.info('Image not yet saved to storage');
@@ -67,9 +65,13 @@
             }
 
             img = new Image();
-            img.src = src;
+            img.src = fromCache || user.image;
 
-            cacheImage(img);
+            if (!fromCache) {
+                img.onload = function () {
+                    cacheImage(img).forUser(user);
+                };
+            }
 
             return img;
         },
@@ -77,15 +79,17 @@
         webImageContainer = document.getElementById('web-image-container'),
         storageImageContainer = document.getElementById('storage-image-container');
 
-        imageUrls.forEach(function (imageUrl) {
-            var img = createImage(imageUrl, true);
-            if (img) {
-                storageImageContainer.appendChild(img);
-            }
-        });
+    // localStorage.clear();
 
-        imageUrls.forEach(function (imageUrl) {
-            webImageContainer.appendChild(createImage(imageUrl));
-        });
+    users.forEach(function (user) {
+        var img = createImage(user, true);
+        if (img) {
+            storageImageContainer.appendChild(img);
+        }
+    });
+
+    users.forEach(function (user) {
+        webImageContainer.appendChild(createImage(user));
+    });
 
 }());
