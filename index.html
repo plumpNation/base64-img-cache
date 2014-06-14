@@ -3,14 +3,26 @@
     <head>
         <meta charset="utf-8">
         <title>Base64 image storage test</title>
+        <script src="bower_components/Chart.js/Chart.js"></script>
+        <style>
+            #reports {
+                float: right;
+            }
+        </style>
     </head>
     <body>
-        <section id="storage-image-container">
-            <h1>Loaded from storage images</h1>
+        <section id="reports">
+            <canvas id="report-chart" width="400" height="200"></canvas>
         </section>
+
+        <!-- <section id="storage-image-container">
+            <h1>Loaded from storage images</h1>
+        </section> -->
+
         <section id="web-image-container">
             <h2>Loaded from web images</h2>
         </section>
+
         <script src="main.js"></script>
     </body>
 </html>

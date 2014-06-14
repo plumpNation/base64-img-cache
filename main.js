@@ -35,9 +35,14 @@
         },
 
         getStorageSize = function (n) {
-            var bytes = JSON.stringify(window.localStorage).length * (n || 1);
+            // quick hack to make the numbers correct
+            n = n / users.length;
 
-            return bytesToSize(bytes);
+            return JSON.stringify(window.localStorage).length * (n || 1);
+        },
+
+        getPrettyStorageSize = function (n) {
+            return bytesToSize(getStorageSize(n));
         },
 
         /**
@@ -59,15 +64,33 @@
 
             canvas.height = img.height;
             canvas.width = img.width;
+
+            // Draws the image at origin point 0,0
+            // https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D
             ctx.drawImage(img, 0, 0);
 
+            // Beware of cross domain images, they are not available to 'toDataURL' as they
+            // 'taint' the canvas. Security something or other. There is a workaround I'm sure,
+            // but from the looks of it it involves getting the binary data from the FileAPI
+            // and I don't think this is relevent to your use case.
             dataURL = canvas.toDataURL(outputFormat);
             canvas = null;
 
             return dataURL;
         },
 
+        /**
+         * This function assumes for the point of this example that you are writing an object
+         * which will need to be stringified to store it.
+         *
+         * @param  {string} key
+         * @param  {object} data Will be stringified
+         * @return {void}
+         */
         writeDataToStorage = function (key, data) {
+            var data = JSON.stringify(data);
+
+            console.log('Writing ' + bytesToSize(data.length) + ' to storage');
             window.localStorage.setItem(key, data);
         },
 
@@ -77,7 +100,7 @@
             return {
                 forUser: function (user) {
                     user.image = dataURL;
-                    writeDataToStorage(user.id, JSON.stringify(user));
+                    writeDataToStorage(user.id, user);
                 }
             };
         },
@@ -128,32 +151,64 @@
            return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
         },
 
+        makeBarChartData = function (data) {
+            var bigNumbers = [100, 500, 1000, 5000, 10000],
+                datasetData = Object.keys(data).map(function (key) {
+                            return data[key];
+                        }).concat(bigNumbers.map(function (num) {
+                            return getStorageSize(num);
+                        }));
+
+                chartData = {
+                    'labels': Object.keys(data).concat(bigNumbers),
+                    'datasets': [
+                        {'data': datasetData}
+                    ]
+                };
+
+            return chartData;
+        },
+
+        drawChart = function (data) {
+            var chart = document.getElementById('report-chart'),
+                ctx = chart.getContext('2d');
+
+            new Chart(ctx).Bar(makeBarChartData(data));
+        },
+
         report = function () {
-            console.info('So after caching our ' + users.length + ' user images we ' +
-                'have used roughly ' + getStorageSize() + ' bytes');
-            console.log('This means for 10000 users we will use roughly ' + getStorageSize(10000));
+            console.info('So after writing our ' + users.length + ' user images we ' +
+                'have used roughly ' + getPrettyStorageSize() + ' bytes');
+            console.log('This means for 10000 users we will use roughly ' + getPrettyStorageSize(10000));
+
+            chartData.end = getStorageSize();
+            chartData.prediction = getPrettyStorageSize(10000);
+
+            drawChart(chartData);
         },
 
         webImageContainer = document.getElementById('web-image-container'),
         storageImageContainer = document.getElementById('storage-image-container');
 
     localStorage.clear();
-    console.log('Starting size: ');
-    console.log(getStorageSize());
+    console.log('Starting storage size: ', getPrettyStorageSize());
 
-    var writesToStorage = [];
+    var writesToStorage = [],
+        chartData = {
+            'start': getStorageSize(),
+            'end': undefined,
+            'prediction': undefined
+        };
 
-    // Will load the image and then convert to base64 to store locally
     // This foreach is only interesting if we have commented the localStorage.clear() line.
-    users.forEach(function (user) {
+    /*users.forEach(function (user) {
         createImage(user, true).then(function (img) {
             if (img) {
                 storageImageContainer.appendChild(img);
             }
         });
-    });
+    });*/
 
-    // Just a normal image load, but it's also where we'll cache the images
     users.forEach(function (user) {
         var storing = new Promise(function (resolve) {
             createImage(user).then(function (img) {
