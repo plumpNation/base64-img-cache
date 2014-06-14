@@ -25,10 +25,15 @@ space. Subdomains are a solution to this.
 * Opera has no known limit.
 * Internet Exporer 10 has a hard 250MB limit.
 
-# Reading material
+
+# Reading materials
+
 https://dvcs.w3.org/hg/quota/raw-file/tip/Overview.html#idl-def-StorageQuota
+
 https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
+
 http://pouchdb.com/faq.html
 
 http://randomuser.me/documentation.html
+
 http://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space
