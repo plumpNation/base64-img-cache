@@ -103,7 +103,7 @@
          * @param  {number} bytes
          * @return {string}       e.g. 2MB
          */
-        bytesToSize = function (bytes) {
+        prettyBytes = function (bytes) {
             var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'],
                 i;
 
@@ -114,6 +114,16 @@
            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
 
            return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        },
+
+        bytesToKb = function (bytes) {
+            var n;
+
+            if (bytes === 0) {
+                return 0;
+            }
+
+            return Math.round(bytes / Math.pow(1024, 1), 2);
         },
 
         /**
@@ -130,12 +140,12 @@
         },
 
         /**
-         * Runs the result of getStorageSize through a prettifier function called bytesToSize
+         * Runs the result of getStorageSize through a prettifier function called prettyBytes
          * @param  {number} multiplier
          * @return {number}
          */
         getPrettyStorageSize = function (multiplier) {
-            return bytesToSize(getStorageSize(multiplier));
+            return prettyBytes(getStorageSize(multiplier));
         },
 
         /**
@@ -183,7 +193,7 @@
         writeDataToStorage = function (key, data) {
             var data = JSON.stringify(data);
 
-            console.log('Writing ' + bytesToSize(data.length) + ' to storage');
+            console.log('Writing ' + prettyBytes(data.length) + ' to storage');
             window.localStorage.setItem(key, data);
         },
 
@@ -239,9 +249,9 @@
         makeBarChartData = function (data) {
             var bigNumbers = [100, 500, 1000, 5000, 10000],
                 datasetData = Object.keys(data).map(function (key) {
-                            return data[key];
+                            return bytesToKb(data[key]);
                         }).concat(bigNumbers.map(function (num) {
-                            return getStorageSize(num);
+                            return bytesToKb(getStorageSize(num));
                         }));
 
                 chartData = {
