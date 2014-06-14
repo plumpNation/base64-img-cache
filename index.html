@@ -6,9 +6,15 @@
         <script src="bower_components/Chart.js/Chart.js"></script>
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <style>
+            #reports,
             #report,
             #report-chart-container {
                 float: right;
+            }
+
+            #reports {
+                border: thin solid grey;
+                padding: 5px;
             }
 
             #report {
@@ -20,9 +26,24 @@
                 padding: 5px;
                 text-align: right;
             }
+
+            menu, ul, li {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            menu li {
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
+        <menu>
+            <li><a href="?small">Test small</a></li>
+            <li><a href="?medium">Test medium</a></li>
+        </menu>
+
         <section id="reports">
             <h1>Local storage usage</h2>
             <div id="report-chart-container">
