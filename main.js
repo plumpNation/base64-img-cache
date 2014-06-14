@@ -9,6 +9,37 @@
             {id: 'asf373h0138', image: 'images/5.jpg'}
         ],
 
+        testSize = function (callback) {
+            var i,
+                data;
+
+            localStorage.setItem('DATA', 'm');
+
+            for (i = 0; i < 40; i += 1) {
+
+                data = localStorage.getItem('DATA');
+
+                try {
+                    localStorage.setItem('DATA', data + data);
+
+                } catch (e) {
+                    console.log('LIMIT REACHED: (' + i + ')');
+                    console.log(e);
+                    break;
+                }
+            }
+
+            callback();
+
+            localStorage.removeItem('DATA');
+        },
+
+        getStorageSize = function (n) {
+            var bytes = JSON.stringify(window.localStorage).length * (n || 1);
+
+            return bytesToSize(bytes);
+        },
+
         /**
          * Convert an image to a base64 string.
          *
@@ -54,42 +85,85 @@
         createImage = function (user, getFromCache) {
             var img,
                 fromCache,
-                cachedUser = window.localStorage.getItem(user.id);
+                cachedUser = window.localStorage.getItem(user.id),
+                promise;
 
             if (getFromCache && cachedUser) {
                 fromCache = JSON.parse(cachedUser).image;
 
             } else if (getFromCache) {
                 console.info('Image not yet saved to storage');
-                return null;
+                return Promise.resolve(null);
             }
 
             img = new Image();
-            img.src = fromCache || user.image;
+            img.src = getFromCache ? fromCache : user.image;
 
-            if (!fromCache) {
-                img.onload = function () {
-                    cacheImage(img).forUser(user);
-                };
+            return new Promise(function (resolve) {
+                if (fromCache) {
+                    resolve(img);
+
+                } else {
+                    img.onload = function () {
+                        cacheImage(img).forUser(user);
+                        // If we resolve in the onload function, the users will be added according
+                        // to when they load from their respective sources. So expect the users
+                        // to change order on the page.
+                        resolve(img);
+                    };
+                }
+            });
+        },
+
+        bytesToSize = function (bytes) {
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'],
+                i;
+
+            if (bytes === 0) {
+                return '0 Bytes';
             }
 
-            return img;
+           i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+
+           return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        },
+
+        report = function () {
+            console.info('So after caching our ' + users.length + ' user images we ' +
+                'have used roughly ' + getStorageSize() + ' bytes');
+            console.log('This means for 10000 users we will use roughly ' + getStorageSize(10000));
         },
 
         webImageContainer = document.getElementById('web-image-container'),
         storageImageContainer = document.getElementById('storage-image-container');
 
-    // localStorage.clear();
+    localStorage.clear();
+    console.log('Starting size: ');
+    console.log(getStorageSize());
 
+    var writesToStorage = [];
+
+    // Will load the image and then convert to base64 to store locally
+    // This foreach is only interesting if we have commented the localStorage.clear() line.
     users.forEach(function (user) {
-        var img = createImage(user, true);
-        if (img) {
-            storageImageContainer.appendChild(img);
-        }
+        createImage(user, true).then(function (img) {
+            if (img) {
+                storageImageContainer.appendChild(img);
+            }
+        });
     });
 
+    // Just a normal image load, but it's also where we'll cache the images
     users.forEach(function (user) {
-        webImageContainer.appendChild(createImage(user));
+        var storing = new Promise(function (resolve) {
+            createImage(user).then(function (img) {
+                webImageContainer.appendChild(img);
+                resolve();
+            });
+        });
+
+        writesToStorage.push(storing);
     });
 
+    Promise.all(writesToStorage).then(report);
 }());
