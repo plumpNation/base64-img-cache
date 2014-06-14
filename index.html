@@ -4,15 +4,38 @@
         <meta charset="utf-8">
         <title>Base64 image storage test</title>
         <script src="bower_components/Chart.js/Chart.js"></script>
+        <script src="bower_components/jquery/dist/jquery.js"></script>
         <style>
-            #reports {
+            #report,
+            #report-chart-container {
                 float: right;
+            }
+
+            #report {
+                border-collapse: collapse;
+            }
+
+            #report th, #report td {
+                border: thin solid grey;
+                padding: 5px;
+                text-align: right;
             }
         </style>
     </head>
     <body>
         <section id="reports">
-            <canvas id="report-chart" width="400" height="200"></canvas>
+            <h1>Local storage usage</h2>
+            <div id="report-chart-container">
+                <canvas id="report-chart" width="400" height="200"></canvas>
+            </div>
+            <table id="report">
+                <tbody>
+                    <tr class="row-template">
+                        <th></th>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
         <!-- <section id="storage-image-container">

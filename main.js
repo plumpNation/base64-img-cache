@@ -176,7 +176,30 @@
             new Chart(ctx).Bar(makeBarChartData(data));
         },
 
+        writeReport = function (data) {
+            var report = $('#report'),
+                template = report.find('.row-template').remove(),
+                clone;
+
+            Object.keys(data).forEach(function (key) {
+                clone = template.clone();
+                clone.children('th').text(key);
+                clone.children('td').text(data[key]);
+                clone.appendTo(report);
+            });
+        },
+
         report = function () {
+            var reportObj = {
+                'Number of users': users.length,
+                'Storage size'   : getPrettyStorageSize(),
+                'For 100 users'  : getPrettyStorageSize(100),
+                'For 200 users'  : getPrettyStorageSize(200),
+                'For 500 users'  : getPrettyStorageSize(500),
+                'For 1000 users' : getPrettyStorageSize(1000),
+                'For 10000 users': getPrettyStorageSize(10000)
+            };
+
             console.info('So after writing our ' + users.length + ' user images we ' +
                 'have used roughly ' + getPrettyStorageSize() + ' bytes');
             console.log('This means for 10000 users we will use roughly ' + getPrettyStorageSize(10000));
@@ -185,6 +208,7 @@
             chartData.prediction = getPrettyStorageSize(10000);
 
             drawChart(chartData);
+            writeReport(reportObj);
         },
 
         webImageContainer = document.getElementById('web-image-container'),
@@ -195,6 +219,7 @@
 
     var writesToStorage = [],
         chartData = {
+            // Record the starting storage size
             'start': getStorageSize(),
             'end': undefined,
             'prediction': undefined
