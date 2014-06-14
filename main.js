@@ -200,6 +200,8 @@
             writeDataToStorage(user.id, user);
         },
 
+        imageTemplate = $('#image-template').remove(),
+
         /**
          * Creates the image tag for the image url to populate.
          *
@@ -209,20 +211,21 @@
          *                                stored.
          */
         createImage = function (user) {
-            var img,
+            var imgContainer,
+                img,
                 promise;
 
-            img = new Image();
-            img.src = user.image;
+            imgContainer = imageTemplate.clone();
+            img = imgContainer.children('img').prop('src', user.image);
 
             return new Promise(function (resolve) {
-                img.onload = function () {
-                    cacheImage(img, user);
+                img.on('load', function () {
+                    cacheImage(this, user);
                     // If we resolve in the onload function, the users will be added according
                     // to when they load from their respective sources. So expect the users
                     // to change order on the page.
-                    resolve(img);
-                };
+                    resolve(imgContainer);
+                });
             });
         },
 
@@ -314,8 +317,8 @@
 
     users.forEach(function (user) {
         var storing = new Promise(function (resolve) {
-            createImage(user).then(function (img) {
-                webImageContainer.appendChild(img);
+            createImage(user).then(function (imgContainer) {
+                imgContainer.appendTo('#web-image-container');
                 resolve();
             });
         });

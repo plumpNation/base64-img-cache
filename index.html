@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>Base64 image storage test</title>
+        <link rel="stylesheet" href="bower_components/bootsketch/build/css/bootsketch.css">
         <script src="bower_components/Chart.js/Chart.js"></script>
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <style>
@@ -12,6 +13,10 @@
                 float: right;
             }
 
+            #web-image-container {
+                width: 50%;
+            }
+
             #reports {
                 border: thin solid grey;
                 padding: 5px;
@@ -19,6 +24,7 @@
 
             #report {
                 border-collapse: collapse;
+                width: auto;
             }
 
             #report th, #report td {
@@ -27,29 +33,24 @@
                 text-align: right;
             }
 
-            menu, ul, li {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            menu li {
+            .image-container {
                 display: inline-block;
+                margin: 5px;
             }
         </style>
     </head>
     <body>
-        <menu>
-            <li><a href="?small">Test small</a></li>
-            <li><a href="?medium">Test medium</a></li>
-        </menu>
+        <nav class="navbar-header">
+            <a href="?small" class="navbar-brand">Test small</a>
+            <a href="?medium" class="navbar-brand">Test medium</a>
+        </nav>
 
         <section id="reports">
             <h1>Local storage usage</h2>
             <div id="report-chart-container">
                 <canvas id="report-chart" width="400" height="200"></canvas>
             </div>
-            <table id="report">
+            <table id="report" class="table table-striped">
                 <tbody>
                     <tr class="row-template">
                         <th></th>
@@ -59,12 +60,11 @@
             </table>
         </section>
 
-        <!-- <section id="storage-image-container">
-            <h1>Loaded from storage images</h1>
-        </section> -->
-
         <section id="web-image-container">
             <h2>Loaded from web images</h2>
+            <div id="image-template" class="well image-container">
+                <img src="">
+            </div>
         </section>
 
         <script src="main.js"></script>
