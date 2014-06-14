@@ -5,6 +5,12 @@
 bower install
 ```
 
+## What is the point in this repo?
+This is an experiment to see how much room is taken up by converting images to Base64 and storing
+them in the local browser storage.
+
+There is far simpler ways to do this, right, but this is also a little fun for me to play with.
+
 ## Potential issues
 CORS images need handling a particular way. Cannot use the canvas getDataUrl on a CORS image in a
 canvas as it becomes 'tainted'.
