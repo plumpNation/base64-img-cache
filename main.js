@@ -205,7 +205,7 @@
          */
         cacheUser = function (user) {
             writeDataToStorage(user.id, user);
-            console.log('User imageData length: ', user.imageData);
+            console.log(user.imageData.length);
         },
 
         cacheUsers = function (users) {
@@ -229,7 +229,6 @@
             var imgContainer,
                 img;
 
-            console.log(user.imageData);
             imgContainer = imageTemplate.clone();
 
             imgContainer.prop('id', 'img-' + user.id).children('img').prop('src', user.imageData);
