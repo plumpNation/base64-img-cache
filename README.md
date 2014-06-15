@@ -5,6 +5,17 @@
 bower install
 ```
 
+## How does it work
+Well, previously, in tag v0.1 the image was loaded with an img tag and then was put on a canvas
+and the data read from that. This re-compressed the images, normalising their disk sizes and
+ensuring that the same space was taken for each image of the same size.
+
+Now I have rewritten it to load using the arraybuffer xhr response type, created a blob and
+converted that to base64 using the FileReader API. I could have used a blob response type, but that
+is perhaps not covered in all browsers at this point. I think that the array buffer is a Uint8Array
+so this will only work with browsers that support typed arrays, and XHR2 but I think that's
+implied if the browser supports typed arrays.
+
 ## What is the point in this repo?
 This is an experiment to see how much room is taken up by converting images to Base64 and storing
 them in the local browser storage.
@@ -44,4 +55,10 @@ http://randomuser.me/documentation.html
 
 http://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space
 
+http://www.html5rocks.com/en/tutorials/file/xhr2/
+
 https://hacks.mozilla.org/2012/02/saving-images-and-files-in-localstorage/
+
+http://www.html5rocks.com/en/tutorials/webgl/typed_arrays/
+
+https://developer.mozilla.org/en-US/docs/Web/API/Uint8Array
