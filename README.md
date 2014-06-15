@@ -43,3 +43,5 @@ http://pouchdb.com/faq.html
 http://randomuser.me/documentation.html
 
 http://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space
+
+https://hacks.mozilla.org/2012/02/saving-images-and-files-in-localstorage/

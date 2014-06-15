@@ -198,16 +198,21 @@
         },
 
         /**
-         * Converts image tag to base 64 and writes the result to the local storage.
+         * Caches user data in localStorage with the user id as key.
          *
          * @param  {DOMelement} img
          * @return {void}
          */
-        cacheImage = function (img, user) {
-            var dataURL = convertImgToBase64(img);
-
-            user.image = dataURL;
+        cacheUser = function (user) {
             writeDataToStorage(user.id, user);
+            console.log('User imageData length: ', user.imageData);
+        },
+
+        cacheUsers = function (users) {
+            users = Array.isArray(users) ? users : [users];
+            users.forEach(cacheUser);
+
+            return users;
         },
 
         imageTemplate = $('#image-template').remove(),
@@ -220,23 +225,19 @@
          *                                can be done knowing that the image is loaded and
          *                                stored.
          */
-        createImage = function (user) {
+        createImageFromData = function (user) {
             var imgContainer,
-                img,
-                promise;
+                img;
 
+            console.log(user.imageData);
             imgContainer = imageTemplate.clone();
-            img = imgContainer.children('img').prop('src', user.image);
 
-            return new Promise(function (resolve) {
-                img.on('load', function () {
-                    cacheImage(this, user);
-                    // If we resolve in the onload function, the users will be added according
-                    // to when they load from their respective sources. So expect the users
-                    // to change order on the page.
-                    resolve(imgContainer);
-                });
-            });
+            imgContainer.prop('id', 'img-' + user.id).children('img').prop('src', user.imageData);
+            $(webImageContainer).append(imgContainer);
+        },
+
+        createImagesFromData = function (users) {
+            users.forEach(createImageFromData);
         },
 
         /**
@@ -310,15 +311,14 @@
             return chartData;
         },
 
-        webImageContainer = document.getElementById('web-image-container'),
-        storageImageContainer = document.getElementById('storage-image-container');
+        webImageContainer = document.getElementById('web-image-container');
 
     // We start by clearing the local storage for this domain.
     localStorage.clear();
 
     console.log('Starting storage size: ', getPrettyStorageSize());
 
-    var writesToStorage = [],
+    var fetchingImageBinaries = [],
         chartData = {
             // Record the starting storage size
             'start': getStorageSize(),
@@ -326,18 +326,45 @@
         };
 
     users.forEach(function (user) {
-        var storing = new Promise(function (resolve) {
-            createImage(user).then(function (imgContainer) {
-                imgContainer.appendTo('#web-image-container');
-                resolve();
-            });
+        var fetchingImageBinary = new Promise(function (resolve, reject) {
+            var oReq = new XMLHttpRequest();
+
+            oReq.open('GET', user.image, true);
+            oReq.responseType = 'arraybuffer';
+
+            oReq.onload = function (e) {
+                var blob,
+                    reader = new FileReader();
+
+                if (this.status == 200) {
+                    // Note: .response instead of .responseText
+                    blob = new Blob([this.response], {type: 'image/jpeg'});
+
+                    reader.onload = function (evt) {
+                        user.imageData = evt.target.result;
+                        resolve(user);
+                    };
+
+                    reader.readAsDataURL(blob);
+                    return;
+                }
+
+                reject('xhr status: ' + this.status);
+            }
+
+            oReq.send();
         });
 
-        writesToStorage.push(storing);
+        fetchingImageBinaries.push(fetchingImageBinary);
     });
 
-    Promise.all(writesToStorage)
+    Promise.all(fetchingImageBinaries)
+        .then(cacheUsers)
+        .then(createImagesFromData)
         .then(recordEndResults)
         .then(drawChart)
-        .then(writeReport);
+        .then(writeReport)
+        .catch(function (error) {
+            console.error(error);
+        });
 }());

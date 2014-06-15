@@ -4,44 +4,10 @@
         <meta charset="utf-8">
         <title>Base64 image storage test</title>
         <link rel="stylesheet" href="bower_components/bootsketch/build/css/bootsketch.css">
+        <link rel="stylesheet" href="styles.css">
         <script src="bower_components/Chart.js/Chart.js"></script>
         <script src="bower_components/jquery/dist/jquery.js"></script>
-        <style>
-            #reports,
-            #report,
-            #report-chart-container {
-                float: right;
-            }
-
-            #web-image-container {
-                width: 50%;
-            }
-
-            #reports {
-                border: thin solid grey;
-                padding: 5px;
-            }
-
-            #report {
-                border-collapse: collapse;
-                width: auto;
-            }
-
-            #report th, #report td {
-                border: thin solid grey;
-                padding: 5px;
-                text-align: right;
-            }
-
-            .image-container {
-                display: inline-block;
-                margin: 5px;
-            }
-
-            #legend {
-                text-align: center;
-            }
-        </style>
+        <script src="utils.js"></script>
     </head>
     <body>
         <nav class="navbar-header">

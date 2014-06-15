@@ -1,0 +1,34 @@
+#reports,
+#report,
+#report-chart-container {
+    float: right;
+}
+
+#web-image-container {
+    width: 50%;
+}
+
+#reports {
+    border: thin solid grey;
+    padding: 5px;
+}
+
+#report {
+    border-collapse: collapse;
+    width: auto;
+}
+
+#report th, #report td {
+    border: thin solid grey;
+    padding: 5px;
+    text-align: right;
+}
+
+.image-container {
+    display: inline-block;
+    margin: 5px;
+}
+
+#legend {
+    text-align: center;
+}
